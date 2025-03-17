@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Word Frequency Analyzer - Configure Analysis{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h2 class="h4 mb-0">Configure Analysis Options</h2>
+            </div>
+            <div class="card-body">
+                <p>The following books will be analyzed:</p>
+                <ul>
+                    {% for book_file in book_files %}
+                    <li>{{ book_file }}</li>
+                    {% endfor %}
+                </ul>
+                
+                <p>Configure your analysis options below:</p>
+                
+                <form method="POST" action="{{ url_for('main.analyze', session_id=session_id) }}">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">Preprocessing Options</div>
+                                <div class="card-body">
+                                    <div class="form-check mb-2">
+                                        {{ form.remove_stopwords(class="form-check-input") }}
+                                        {{ form.remove_stopwords.label(class="form-check-label") }}
+                                        <small class="form-text text-muted d-block">
+                                            Remove common words like "the", "and", "is"
+                                        </small>
+                                    </div>
+                                    
+                                    <div class="form-check mb-2">
+                                        {{ form.lemmatize(class="form-check-input") }}
+                                        {{ form.lemmatize.label(class="form-check-label") }}
+                                        <small class="form-text text-muted d-block">
+                                            Reduce words to their base form (e.g., "running" → "run")
+                                        </small>
+                                    </div>
+                                    
+                                    <div class="mb-2">
+                                        {{ form.top_words.label(class="form-label") }}
+                                        {{ form.top_words(class="form-control") }}
+                                        <small class="form-text text-muted">
+                                            Number of most frequent words to analyze
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">Analysis Options</div>
+                                <div class="card-body">
+                                    <div class="form-check mb-2">
+                                        {{ form.generate_wordcloud(class="form-check-input") }}
+                                        {{ form.generate_wordcloud.label(class="form-check-label") }}
+                                        <small class="form-text text-muted d-block">
+                                            Create word cloud visualizations
+                                        </small>
+                                    </div>
+                                    
+                                    <div class="form-check mb-2">
+                                        {{ form.generate_charts(class="form-check-input") }}
+                                        {{ form.generate_charts.label(class="form-check-label") }}
+                                        <small class="form-text text-muted d-block">
+                                            Create bar charts and histograms
+                                        </small>
+                                    </div>
+                                    
+                                    <div class="form-check mb-2">
+                                        {{ form.analyze_themes(class="form-check-input") }}
+                                        {{ form.analyze_themes.label(class="form-check-label") }}
+                                        <small class="form-text text-muted d-block">
+                                            Identify themes across texts (requires at least 2 books)
+                                        </small>
+                                    </div>
+                                    
+                                    <div class="mb-2">
+                                        {{ form.num_topics.label(class="form-label") }}
+                                        {{ form.num_topics(class="form-control") }}
+                                        <small class="form-text text-muted">
+                                            Number of themes to identify
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center">
+                        {{ form.submit(class="btn btn-lg btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

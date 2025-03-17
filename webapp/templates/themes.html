@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}Word Frequency Analyzer - Theme Analysis{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h2 class="h4 mb-0">Theme Analysis Results</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h3 class="h5">Identified Themes</h3>
+                        <div class="accordion" id="themesAccordion">
+                            {% for topic in themes.topics %}
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="heading{{ topic.id }}">
+                                    <button class="accordion-button {% if not loop.first %}collapsed{% endif %}" 
+                                            type="button" 
+                                            data-bs-toggle="collapse" 
+                                            data-bs-target="#collapse{{ topic.id }}" 
+                                            aria-expanded="{% if loop.first %}true{% else %}false{% endif %}" 
+                                            aria-controls="collapse{{ topic.id }}">
+                                        Theme {{ topic.id + 1 }}
+                                    </button>
+                                </h2>
+                                <div id="collapse{{ topic.id }}" 
+                                     class="accordion-collapse collapse {% if loop.first %}show{% endif %}" 
+                                     aria-labelledby="heading{{ topic.id }}" 
+                                     data-bs-parent="#themesAccordion">
+                                    <div class="accordion-body">
+                                        <p><strong>Top Words:</strong></p>
+                                        <p>{{ topic.words|join(", ") }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <h3 class="h5">Dominant Themes by Book</h3>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Book</th>
+                                        <th>Dominant Theme</th>
+                                        <th>Theme Words</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for doc in themes.dominant_topics %}
+                                    <tr>
+                                        <td>{{ doc.Document }}</td>
+                                        <td>Theme {{ doc['Dominant Topic'] + 1 }}</td>
+                                        <td><small>{{ doc['Topic Words'] }}</small></td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <h3 class="h5 mt-4">Theme Distribution</h3>
+                        <canvas id="themeDistributionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <a href="{{ url_for('main.results', session_id=session_id) }}" class="btn btn-secondary">
+            Back to Results
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Prepare data for the chart
+    const docTopics = {{ themes.document_topics|tojson }};
+    const topicLabels = Array.from({ length: {{ themes.topics|length }} }, (_, i) => `Theme ${i+1}`);
+    
+    // Create datasets for each document
+    const datasets = docTopics.map(doc => {
+        // Generate a random color
+        const r = Math.floor(Math.random() * 200);
+        const g = Math.floor(Math.random() * 200);
+        const b = Math.floor(Math.random() * 200);
+        
+        return {
+            label: doc.document,
+            data: doc.topics.map(t => (t.weight * 100).toFixed(1)),
+            backgroundColor: `rgba(${r},${g},${b},0.7)`,
+            borderColor: `rgba(${r},${g},${b},1)`,
+            borderWidth: 1
+        };
+    });
+    
+    // Create the chart
+    const ctx = document.getElementById('themeDistributionChart').getContext('2d');
+    const chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: topicLabels,
+            datasets: datasets
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Theme Relevance (%)'
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

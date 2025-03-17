@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Word Frequency Analyzer - Compare Books{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h2 class="h4 mb-0">Compare Books</h2>
+            </div>
+            <div class="card-body">
+                <p>Select two books to compare their word usage patterns.</p>
+                
+                <form method="POST" action="{{ url_for('main.compare', session_id=session_id) }}">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.book1.label(class="form-label") }}
+                            {{ form.book1(class="form-select") }}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            {{ form.book2.label(class="form-label") }}
+                            {{ form.book2(class="form-select") }}
+                        </div>
+                    </div>
+                    
+                    <div class="text-center">
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

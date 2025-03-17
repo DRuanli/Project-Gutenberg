@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Word Frequency Analyzer{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('main.index') }}">Word Frequency Analyzer</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.index') }}">Home</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container my-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-light py-3 mt-5">
+        <div class="container text-center">
+            <p class="text-muted mb-0">Word Frequency Analyzer &copy; {{ now.year }}</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
+
+# ---- webapp/templates/index.html ----
+
+{% extends "base.html" %}
+
+{% block title %}Word Frequency Analyzer - Home{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h2 class="h4 mb-0">Word Frequency in Classic Novels</h2>
+            </div>
+            <div class="card-body">
+                <p>This application analyzes word frequencies in classic novels from Project Gutenberg 
+                   or your own text files. You can visualize the results, identify themes, and compare
+                   different works.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="h5 mb-0">Download from Project Gutenberg</h3>
+            </div>
+            <div class="card-body">
+                <p>Enter Gutenberg book IDs separated by commas (e.g., 84, 1342, 11).</p>
+                <p><small class="text-muted">Example IDs: 84 (Frankenstein), 1342 (Pride and Prejudice), 11 (Alice in Wonderland)</small></p>
+                
+                <form method="POST" action="{{ url_for('main.index') }}">
+                    {{ gutenberg_form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ gutenberg_form.book_ids.label(class="form-label") }}
+                        {{ gutenberg_form.book_ids(class="form-control") }}
+                    </div>
+                    {{ gutenberg_form.submit(class="btn btn-primary") }}
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="h5 mb-0">Upload Your Own Text</h3>
+            </div>
+            <div class="card-body">
+                <p>Upload a text file (.txt) to analyze.</p>
+                
+                <form method="POST" action="{{ url_for('main.index') }}" enctype="multipart/form-data">
+                    {{ upload_form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ upload_form.file.label(class="form-label") }}
+                        {{ upload_form.file(class="form-control") }}
+                    </div>
+                    {{ upload_form.submit(class="btn btn-primary") }}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if available_books %}
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="h5 mb-0">Previously Analyzed Books</h3>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for book in available_books %}
+                            <tr>
+                                <td>{{ book.title }}</td>
+                                <td>
+                                    <a href="{{ url_for('main.results', session_id=book.session_id) }}" 
+                                       class="btn btn-sm btn-primary">View Results</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

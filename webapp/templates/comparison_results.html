@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Word Frequency Analyzer - Comparison Results{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h2 class="h4 mb-0">Book Comparison Results</h2>
+            </div>
+            <div class="card-body">
+                <h3 class="h5">Comparing: {{ book1 }} vs {{ book2 }}</h3>
+                
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <h4 class="h6">Words with Biggest Differences</h4>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Word</th>
+                                        <th>{{ book1 }}</th>
+                                        <th>{{ book2 }}</th>
+                                        <th>Difference</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for word in comparison[:15] %}
+                                    <tr>
+                                        <td>{{ word.Word }}</td>
+                                        <td>{{ word[book1 + ' Frequency'] }}</td>
+                                        <td>{{ word[book2 + ' Frequency'] }}</td>
+                                        <td>{{ word.Difference }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        {% if viz_file %}
+                        <div class="card mb-4">
+                            <div class="card-header">Frequency Comparison</div>
+                            <div class="card-body text-center">
+                                <img src="{{ url_for('main.visualization', session_id=session_id, filename='comparisons/visualizations/' + viz_file) }}" 
+                                     class="img-fluid" alt="Frequency Comparison">
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if wordcloud_file %}
+                        <div class="card">
+                            <div class="card-header">Word Cloud Comparison</div>
+                            <div class="card-body text-center">
+                                <img src="{{ url_for('main.visualization', session_id=session_id, filename='comparisons/visualizations/' + wordcloud_file) }}" 
+                                     class="img-fluid" alt="Word Cloud Comparison">
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="d-flex justify-content-between">
+            <a href="{{ url_for('main.results', session_id=session_id) }}" class="btn btn-secondary">
+                Back to Results
+            </a>
+            
+            <a href="{{ url_for('main.compare', session_id=session_id) }}" class="btn btn-primary">
+                Compare Different Books
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
