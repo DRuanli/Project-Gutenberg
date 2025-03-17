@@ -3,6 +3,7 @@
 import os
 import uuid
 import json
+import re
 from datetime import datetime
 from flask import Blueprint, render_template, redirect, url_for, request, flash, current_app, send_from_directory, jsonify
 from werkzeug.utils import secure_filename
@@ -31,7 +32,9 @@ def index():
     
     if gutenberg_form.validate_on_submit():
         # Process Gutenberg book IDs
-        book_ids = [int(id.strip()) for id in gutenberg_form.book_ids.data.split(',')]
+        # Handle both comma and space-separated IDs
+        book_id_input = gutenberg_form.book_ids.data
+        book_ids = [int(id.strip()) for id in re.split(r'[,\s]+', book_id_input) if id.strip()]
         session_id = str(uuid.uuid4())
         book_paths = download_gutenberg_books(book_ids, session_id)
         
