@@ -20,7 +20,7 @@ class ThemeAnalyzer:
         """
         self.n_topics = n_topics
         self.n_top_words = n_top_words
-        self.vectorizer = CountVectorizer(max_df=0.95, min_df=2, stop_words='english')
+        self.vectorizer = CountVectorizer(max_df=1.0, min_df=1, stop_words='english')
         self.lda = LatentDirichletAllocation(
             n_components=n_topics,
             max_iter=10,
